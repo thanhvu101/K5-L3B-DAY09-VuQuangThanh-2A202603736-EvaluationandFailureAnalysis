@@ -1,0 +1,3 @@
+# Byte-stable across platforms: the eval-set sha is embedded in every report and gate run.
+src/data/eval/* text eol=lf
+src/reports/*.json text eol=lf

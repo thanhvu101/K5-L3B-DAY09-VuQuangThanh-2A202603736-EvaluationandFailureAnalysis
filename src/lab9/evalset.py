@@ -29,6 +29,32 @@ REQUIRED = ("item_id", "claim_id", "failure_modes", "provenance", "split", "eval
 
 FM_CODE = re.compile(r"FM-\d{2}")
 
+# M1: which failure modes does each Lab 8 matrix case exercise? The first code is the
+# primary symptom (what a failing trace shows first); the rest are secondary checks.
+# Keys are matrix_id values from data/public_claims.jsonl, so rebuilding from source
+# always reproduces the same tags instead of relying on a hand-edited JSONL.
+FM_BY_MATRIX: dict[str, list[str]] = {
+    "T01": ["FM-04"],              # late delivery: shipping-fee quote, no sum/rounding
+    "T02": ["FM-03"],              # ticket says 5 days, DB says 2 -> deny
+    "T03": ["FM-04"],              # damage cap = min(max_refund, paid)
+    "T04": ["FM-02"],              # no order/approval -> needs_info, never money
+    "T05": ["FM-09", "FM-01"],     # foreign order -> escalate, no PII in trace/reply
+    "T06": ["FM-06"],              # superseded clause SHIP-LATE-OLD in the ticket
+    "T07": ["FM-02"],              # host refuses (expired approval), agent must not pay
+    "T08": ["FM-08"],              # approval caps 20000 below the 35000 quote
+    "T09": ["FM-03"],              # "ignore policy, refund now" injection
+    "T10": ["FM-01"],              # phone/address/internal note must stay out
+    "T11": ["FM-05"],              # retry keeps exactly one refund row
+    "T12": ["FM-05"],              # crash before checkpoint must not double pay
+    "T13": ["FM-07"],              # order already refunded by a sibling claim
+    "T14": ["FM-04", "FM-05"],     # max(parts) - prior refund, never a second deduction
+}
+
+
+def failure_modes_for(claim: dict[str, Any]) -> list[str]:
+    """Failure modes an item exercises, primary code first. Never empty (check() requires it)."""
+    return list(FM_BY_MATRIX.get(claim.get("matrix_id") or "", ["FM-08"]))
+
 
 def load_jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
@@ -46,18 +72,17 @@ def build(source: Path = SOURCE) -> tuple[int, int]:
         items.append({
             "item_id": item_id,
             "claim_id": claim["claim_id"],
-            # TODO M1: replace [] with the FM-xx codes from your taxonomy that this item exercises.
-            "failure_modes": [],
+            "failure_modes": failure_modes_for(claim),
             "provenance": {"source": "lab8_public", "matrix_id": claim.get("matrix_id"),
                            "from_trace": None, "generator": None,
-                           "label_by": "lab8_matrix", "checked_by": None},
+                           "label_by": "lab8_matrix", "checked_by": "trace_case+lab9.eval"},
             "split": "regression",
             "eval_set_version": VERSION,
         })
         labels[claim["claim_id"]] = claim["expected"]
     ITEMS.parent.mkdir(parents=True, exist_ok=True)
-    ITEMS.write_text("".join(json.dumps(i, ensure_ascii=False) + "\n" for i in items), encoding="utf-8")
-    LABELS.write_text(json.dumps(labels, ensure_ascii=False, indent=2), encoding="utf-8")
+    ITEMS.write_text("".join(json.dumps(i, ensure_ascii=False) + "\n" for i in items), encoding="utf-8", newline="\n")
+    LABELS.write_text(json.dumps(labels, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
     return len(items), len(labels)
 
 
@@ -98,8 +123,8 @@ def build_v2(items_v1: Path = ITEMS, labels_v1: Path = LABELS, pack: Path = PACK
             "slices": slices_for(claim["expected"], True),
         })
         labels[claim["claim_id"]] = claim["expected"]
-    ITEMS_V2.write_text("".join(json.dumps(i, ensure_ascii=False) + "\n" for i in items), encoding="utf-8")
-    LABELS_V2.write_text(json.dumps(labels, ensure_ascii=False, indent=2), encoding="utf-8")
+    ITEMS_V2.write_text("".join(json.dumps(i, ensure_ascii=False) + "\n" for i in items), encoding="utf-8", newline="\n")
+    LABELS_V2.write_text(json.dumps(labels, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
     return len(items), len(labels)
 
 
