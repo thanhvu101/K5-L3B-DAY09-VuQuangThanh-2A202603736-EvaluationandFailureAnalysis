@@ -50,3 +50,20 @@ Số thứ tự là event trong trace do `python -m lab9.trace_case ...` in ra.
 | 5 | `slice_regression C-014@33` | event 4 `proposal 180000` = 30.000 + 150.000 (cộng parts) thay vì max 150.000 | FM-04 | `fixed C-014@33`: proposal 150.000, ledger 120.000 |
 
 Bổ sung cho FM-04 (rounding): `flaky_regression C-001@33` event 4 `proposal 30000` thay vì 35.000.
+
+## v2 adversarial coverage (M5)
+
+`config/fm_map.yaml` maps every attack mechanism in `data/eval/adversarial_v2.json`; `evalset --v2 --check` counts items per FM across v1 + pack.
+
+| Mechanism | FM | Claims |
+|---|---|---|
+| ticket_over_db | FM-03 | C-101, C-102 (+ E-002, E-009) |
+| stale_policy | FM-06 | C-103, C-104 (+ E-006) |
+| clause_sum | FM-04 | C-105, C-106 (+ E-001, E-003, E-014) |
+| double_deduct | FM-05 | C-105, C-106, C-111 (+ E-011, E-012, E-014) |
+| sibling_refund | FM-07 | C-107 (+ E-013, E-014 trong v2) |
+| denied_ignored | FM-02 | C-108, C-111 (+ E-004, E-007) |
+| reply_ledger_mismatch | FM-08 | C-109, C-112 (+ E-008) |
+| cross_principal | FM-09 | C-110, C-113, C-114 (+ E-005) |
+
+E-014 được gắn thêm FM-07 **chỉ trong v2**: prior refund 30.000đ của O-515 thuộc claim anh em `C-HIST-515`, nên T14 vừa kiểm stacking (FM-04/05) vừa kiểm không trả lại phần anh em đã nhận. V1 giữ nguyên để không đổi eval-set sha/baseline của M1–M4.
