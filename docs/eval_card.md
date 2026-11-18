@@ -2,8 +2,8 @@
 
 Card này đi kèm mỗi báo cáo và được dùng lại ở Day 10.
 
-- **Run ID / eval set SHA:** `E-swarm-20261118-e31d` (baseline) · `E-fixed-20261118-e31d` · `E-seeded_regression-20261118-e31d`; eval set SHA `e31dbae19a47`
-- **Phiên bản:** code (commit M0 `8c76b34` + M1–M4 trên nhánh `starter/d09`) · eval set v1 (sha `e31dbae19a47`) · metric_spec `1.0` · grader `src/lab9/graders.py` · seeds `11/22/33/44/55`
+- **Run ID / eval set SHA:** `E-swarm-20261118-1c00` (baseline) · `E-fixed-20261118-1c00` · `E-seeded_regression-20261118-1c00`; eval set SHA `1c0070544c40`
+- **Phiên bản:** code (commit M0 `8c76b34` + M1–M4 trên nhánh `starter/d09`) · eval set v1 (sha `1c0070544c40`) · metric_spec `1.0` · grader `src/lab9/graders.py` · seeds `11/22/33/44/55`
 - **Eval set:** v1, 14 item × 5 seed, nguồn `lab8_public`; nhãn tách riêng trong `data/eval/labels_v1.json`; `failure_modes` sinh từ `FM_BY_MATRIX` (xem `docs/failure_taxonomy.md`)
 - **Metric & ngưỡng (trích `config/metric_spec.yaml`):**
 
