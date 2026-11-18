@@ -13,6 +13,8 @@ metrics:
      threshold: {min: 0.95, no_significant_drop: true}}
   - {id: pass_rate,             kind: capability, level: outcome,    grader: lab8.metrics.trial_pass, blocking: true,
      threshold: {min: 0.85, no_significant_drop: true}}
+  - {id: proposal_correct,      kind: capability, level: outcome,    grader: code, blocking: true,
+     threshold: {min: 0.95}}
   - {id: pass_5,                kind: capability, level: outcome,    grader: lab8.metrics.summarize, threshold: {min: 0.80}, blocking: false}
   - {id: reply_ledger_match,    kind: capability, level: outcome,    grader: code, blocking: true,
      threshold: {min: 0.95, no_significant_drop: true}}

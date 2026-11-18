@@ -51,6 +51,11 @@ FM_BY_MATRIX: dict[str, list[str]] = {
 }
 
 
+# v2-only tags: T14 also exercises FM-07 because O-515's prior 30.000d refund belongs to
+# the sibling claim C-HIST-515. Keeping this here leaves the v1 eval set (and its sha) intact.
+V2_EXTRA_FM: dict[str, list[str]] = {"E-014": ["FM-07"]}
+
+
 def failure_modes_for(claim: dict[str, Any]) -> list[str]:
     """Failure modes an item exercises, primary code first. Never empty (check() requires it)."""
     return list(FM_BY_MATRIX.get(claim.get("matrix_id") or "", ["FM-08"]))
@@ -109,7 +114,11 @@ def build_v2(items_v1: Path = ITEMS, labels_v1: Path = LABELS, pack: Path = PACK
     base = load_jsonl(items_v1)
     labels = json.loads(labels_v1.read_text(encoding="utf-8"))
     p = json.loads(pack.read_text(encoding="utf-8"))
-    items = [{**it, "eval_set_version": "v2", "slices": slices_for(labels[it["claim_id"]], False)} for it in base]
+    items = [{**it, "eval_set_version": "v2",
+              "failure_modes": [*it["failure_modes"],
+                                *[fm for fm in V2_EXTRA_FM.get(it["item_id"], [])
+                                  if fm not in it["failure_modes"]]],
+              "slices": slices_for(labels[it["claim_id"]], False)} for it in base]
     for claim in p["claims"]:
         items.append({
             "item_id": f"E-{claim['claim_id'][2:]}",   # C-105 -> E-105
